@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(120deg, #f4f4f9, #e0f7fa);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        #chat-container {
+            max-width: 800px;
+            width: 100%;
+            height: 600px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Header Styles */
+        #chat-header {
+            background: linear-gradient(120deg, #4CAF50, #3E8E41);
+            color: white;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        /* Chat Messages */
+        #chat-messages {
+            padding: 20px;
+            overflow-y: auto;
+            flex-grow: 1;
+            background-color: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            display: flex;
+            align-items: flex-end;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .user-message {
+            justify-content: flex-end;
+        }
+
+        .ai-message {
+            justify-content: flex-start;
+        }
+
+        .message p {
+            max-width: 70%;
+            padding: 12px 18px;
+            border-radius: 15px;
+            margin: 0;
+            font-size: 16px;
+            line-height: 1.4;
+        }
+
+        .user-message p {
+            background: #1E88E5;
+            color: white;
+            text-align: right;
+        }
+
+        .ai-message p {
+            background: #e0f7fa;
+            color: #333;
+        }
+
+        /* Chat Input Section */
+        #chat-input {
+            display: flex;
+            padding: 15px;
+            border-top: 2px solid #ddd;
+            background: #fff;
+        }
+
+        #chat-input input {
+            flex-grow: 1;
+            padding: 15px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        #chat-input input:focus {
+            border-color: #4CAF50;
+        }
+
+        #chat-input button {
+            background: linear-gradient(120deg, #4CAF50, #3E8E41);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 18px;
+            padding: 15px 20px;
+            margin-left: 10px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #chat-input button:hover {
+            transform: scale(1.05);
+        }
+
+        #chat-input button i {
+            margin-left: 5px;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            #chat-container {
+                height: 80%;
+            }
+
+            #chat-header {
+                font-size: 20px;
+                padding: 15px;
+            }
+
+            #chat-input input {
+                font-size: 14px;
+                padding: 12px;
+            }
+
+            #chat-input button {
+                font-size: 16px;
+                padding: 12px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <div id="chat-header">AI Chat Assistant</div>
+        <div id="chat-messages"></div>
+        <div id="chat-input">
+            <input type="text" id="user-message" placeholder="Type your message here..." />
+            <button id="send-button">Send <i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <script>
+        const messagesDiv = document.getElementById('chat-messages');
+        const userInput = document.getElementById('user-message');
+        const sendButton = document.getElementById('send-button');
+
+        // Function to add messages to the chat window
+        function addMessage(sender, message, isUser) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', isUser ? 'user-message' : 'ai-message');
+            const messageText = document.createElement('p');
+            messageText.textContent = message;
+            messageDiv.appendChild(messageText);
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight; // Scroll to bottom
+        }
+
+        // Function to send user input to the server
+        async function sendMessage() {
+            const userMessage = userInput.value.trim();
+            if (!userMessage) return;
+
+            addMessage('You', userMessage, true); // Add user message
+            userInput.value = ''; // Clear input field
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: userMessage }),
+                });
+                const data = await response.json();
+                if (data.response) {
+                    addMessage('AI', data.response, false);
+                } else {
+                    addMessage('System', 'Error: Unable to fetch response.', false);
+                }
+            } catch (error) {
+                addMessage('System', 'Error: Unable to connect to server.', false);
+            }
+        }
+
+        // Event listeners
+        sendButton.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+    </script>
+</body>
+</html>
