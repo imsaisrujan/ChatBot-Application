@@ -33,11 +33,11 @@ Welcome to the ChatBot Application project, a web-based application built using 
 
 ### 🛠️ DevOps Tools
 
-Docker: For containerization and deployment of the application.
-Docker Compose: For managing multi-container applications and simplifying the deployment process.
-GitHub: For version control and collaboration on the project.
-Jenkins: For continuous integration and continuous deployment (CI/CD) automation.
-Selenium: For automated testing of the web application.
+- Docker: For containerization and deployment of the application.
+- Docker Compose: For managing multi-container applications and simplifying the deployment process.
+- GitHub: For version control and collaboration on the project.
+- Jenkins: For continuous integration and continuous deployment (CI/CD) automation.
+- Selenium: For automated testing of the web application.
 
 ---
 ## 🛠️ Getting Started
